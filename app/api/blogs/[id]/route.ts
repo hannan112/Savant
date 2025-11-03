@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/db/mongodb";
 import Blog, { IBlog } from "@/lib/db/models/Blog";
@@ -154,6 +155,13 @@ export async function PUT(
 
     await blog.save();
 
+    try {
+      revalidatePath("/blog");
+      if (blog.slug) {
+        revalidatePath(`/blog/${blog.slug}`);
+      }
+    } catch {}
+
     return NextResponse.json({
       id: blog._id.toString(),
       title: blog.title,
@@ -220,6 +228,13 @@ export async function DELETE(
     if (!blog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
     }
+
+    try {
+      revalidatePath("/blog");
+      if (blog?.slug) {
+        revalidatePath(`/blog/${blog.slug}`);
+      }
+    } catch {}
 
     return NextResponse.json({ message: "Blog deleted successfully" });
   } catch (error: any) {

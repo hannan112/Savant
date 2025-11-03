@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/db/mongodb";
 import Blog from "@/lib/db/models/Blog";
@@ -161,6 +162,13 @@ export async function POST(request: NextRequest) {
       twitterImage,
       focusKeyword,
     });
+
+    try {
+      revalidatePath("/blog");
+      if (blog.published && blog.slug) {
+        revalidatePath(`/blog/${blog.slug}`);
+      }
+    } catch {}
 
     return NextResponse.json({
       id: blog._id.toString(),

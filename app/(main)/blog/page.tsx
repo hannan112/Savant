@@ -7,6 +7,8 @@ import { ArrowRight, Calendar, Clock, Eye } from "lucide-react"
 import connectDB from "@/lib/db/mongodb"
 import Blog from "@/lib/db/models/Blog"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: `Blog - ${SITE_CONFIG.name}`,
   description: "Read our latest articles about file conversion, text paraphrasing, productivity tips, and more.",

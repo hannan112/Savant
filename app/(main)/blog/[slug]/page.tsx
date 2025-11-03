@@ -10,6 +10,8 @@ import Blog from "@/lib/db/models/Blog"
 import { SITE_CONFIG } from "@/lib/constants"
 import { formatBlogContent } from "@/lib/blog/formatContent"
 
+export const dynamic = "force-dynamic"
+
 export async function generateMetadata({
   params,
 }: {
