@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, Zap, Lock, Download, CheckCircle, ArrowRight } from "lucide-react"
 import { CONVERTERS, SITE_CONFIG } from "@/lib/constants"
-import { ConversionIcon } from "@/components/conversion-icon"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -20,7 +19,7 @@ export default function HomePage() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-24 md:py-32">
-        <div className="container relative z-10 mx-auto px-4">
+        <div className="container relative z-10">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               Your All-in-One Content &{" "}
@@ -46,7 +45,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section className="py-16 bg-muted/50">
-        <div className="container mx-auto px-4">
+        <div className="container">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="flex flex-col items-center text-center">
               <Zap className="h-12 w-12 text-primary mb-4" />
@@ -82,7 +81,7 @@ export default function HomePage() {
 
       {/* Converters Grid */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
+        <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Powerful File Converters
@@ -94,20 +93,14 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {CONVERTERS.map((converter) => (
-              <Card key={converter.id} className="card-hover">
-                <CardHeader className="text-center">
-                  <div className="mb-4 flex justify-center">
-                    <ConversionIcon 
-                      from={converter.supportedFormats} 
-                      to={converter.outputFormat.split(',')[0].trim()} 
-                      size="lg"
-                    />
-                  </div>
-                  <CardTitle className="text-center">{converter.name}</CardTitle>
-                  <CardDescription className="text-center">{converter.description}</CardDescription>
+              <Card key={converter.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="text-4xl mb-2">{converter.icon}</div>
+                  <CardTitle>{converter.name}</CardTitle>
+                  <CardDescription>{converter.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="mb-4 text-center">
+                  <div className="mb-4">
                     <p className="text-xs text-muted-foreground mb-1">
                       Supports: {converter.supportedFormats.join(", ")}
                     </p>
@@ -129,7 +122,7 @@ export default function HomePage() {
 
       {/* How It Works Section */}
       <section className="py-16 bg-muted/50">
-        <div className="container mx-auto px-4">
+        <div className="container">
           <div className="mx-auto max-w-2xl text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               How It Works
@@ -175,19 +168,19 @@ export default function HomePage() {
 
       {/* Paraphraser Preview */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
+        <div className="container">
           <div className="mx-auto max-w-4xl">
-            <Card className="border-2 card-hover">
-              <CardHeader className="text-center">
-                <div className="flex flex-col items-center">
-                  <div className="mb-4 flex justify-center">
-                    <FileText className="h-12 w-12 text-primary" />
+            <Card className="border-2">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl">AI-Powered Paraphraser</CardTitle>
+                    <CardDescription className="text-base mt-2">
+                      Transform your text with our advanced paraphrasing tool.
+                      Choose from 6 different modes to match your needs.
+                    </CardDescription>
                   </div>
-                  <CardTitle className="text-2xl text-center">AI-Powered Paraphraser</CardTitle>
-                  <CardDescription className="text-base mt-2 text-center">
-                    Transform your text with our advanced paraphrasing tool.
-                    Choose from 6 different modes to match your needs.
-                  </CardDescription>
+                  <FileText className="h-12 w-12 text-primary" />
                 </div>
               </CardHeader>
               <CardContent>
@@ -213,7 +206,7 @@ export default function HomePage() {
 
       {/* FAQ Section */}
       <section className="py-16 bg-muted/50">
-        <div className="container mx-auto px-4">
+        <div className="container">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-3xl font-bold tracking-tight text-center mb-12">
               Frequently Asked Questions
@@ -265,7 +258,7 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="py-16">
-        <div className="container mx-auto px-4">
+        <div className="container">
           <Card className="bg-primary text-primary-foreground border-none">
             <CardContent className="py-12 text-center">
               <h2 className="text-3xl font-bold mb-4">
@@ -288,5 +281,6 @@ export default function HomePage() {
         </div>
       </section>
     </div>
-  )
+  );
 }
+

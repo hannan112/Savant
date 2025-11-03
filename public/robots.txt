@@ -1,0 +1,1 @@
+User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /dashboard/\nDisallow: /admin/\n\nSitemap: https://nextfile-converter.com/sitemap.xml
