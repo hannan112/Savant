@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import { SITE_CONFIG } from "@/lib/constants";
 import { Providers } from "./providers";
 
@@ -98,9 +96,7 @@ export default function RootLayout({
         />
         <div className="fixed inset-0 -z-10 bg-dots" />
         <Providers>
-          <Header />
           <main className="min-h-screen">{children}</main>
-          <Footer />
         </Providers>
       </body>
     </html>
