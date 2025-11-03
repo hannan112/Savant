@@ -12,13 +12,17 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const ipAddress = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
   const userAgent = request.headers.get("user-agent") || "unknown";
+  let file: File | null = null;
+  let files: File[] = [];
+  let from: string = "";
+  let to: string = "";
 
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-    const from = formData.get("from") as string;
-    const to = formData.get("to") as string;
-    const files = formData.getAll("files") as File[];
+    file = formData.get("file") as File | null;
+    from = formData.get("from") as string;
+    to = formData.get("to") as string;
+    files = formData.getAll("files") as File[];
 
     if ((!file && !files.length) || !from || !to) {
       return NextResponse.json(
@@ -234,12 +238,18 @@ export async function POST(request: NextRequest) {
       // Don't fail the conversion if tracking fails
     }
 
-    return new NextResponse(outputBuffer, {
+    return new NextResponse(
+      (outputBuffer as Buffer).buffer.slice(
+        (outputBuffer as Buffer).byteOffset,
+        (outputBuffer as Buffer).byteOffset + (outputBuffer as Buffer).byteLength
+      ) as ArrayBuffer,
+      {
       headers: {
         "Content-Type": mimeType,
         "Content-Disposition": `attachment; filename="${fileName}"`,
       },
-    });
+    }
+    );
   } catch (error: any) {
     console.error("Conversion error:", error);
 

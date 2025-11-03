@@ -6,7 +6,7 @@ import { PDFDocument } from "pdf-lib";
  */
 export async function convertImageFormat(
   buffer: Buffer,
-  format: "jpg" | "png" | "webp" | "gif"
+  format: "jpg" | "jpeg" | "png" | "webp" | "gif"
 ): Promise<Buffer> {
   let pipeline = sharp(buffer);
 

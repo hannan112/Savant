@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Calendar, Clock, Eye } from "lucide-react"
 import type { Metadata } from "next"
+import type { IBlog } from "@/lib/db/models/Blog"
 import connectDB from "@/lib/db/mongodb"
 import Blog from "@/lib/db/models/Blog"
 import { SITE_CONFIG } from "@/lib/constants"
@@ -17,7 +18,9 @@ export async function generateMetadata({
   try {
     const { slug } = await params
     await connectDB()
-    const blog = await Blog.findOne({ slug, published: true }).lean()
+    const blog = (await Blog.findOne({ slug, published: true })
+      .lean<IBlog>()
+      .exec()) as IBlog | null
 
     if (!blog) {
       return {
@@ -94,10 +97,12 @@ export async function generateMetadata({
   }
 }
 
-async function getBlog(slug: string) {
+async function getBlog(slug: string): Promise<IBlog | null> {
   try {
     await connectDB()
-    const blog = await Blog.findOne({ slug, published: true }).lean()
+    const blog = (await Blog.findOne({ slug, published: true })
+      .lean<IBlog>()
+      .exec()) as IBlog | null
     return blog
   } catch (error) {
     console.error("Error fetching blog:", error)

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/db/mongodb";
-import Blog from "@/lib/db/models/Blog";
+import Blog, { IBlog } from "@/lib/db/models/Blog";
 
 // GET single blog
 export async function GET(
@@ -11,7 +11,9 @@ export async function GET(
   try {
     await connectDB();
     const { id } = await params;
-    const blog = await Blog.findById(id).lean();
+    const blog = (await Blog.findById(id)
+      .lean<IBlog & { _id: any }>()
+      .exec()) as (IBlog & { _id: any }) | null;
 
     if (!blog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
