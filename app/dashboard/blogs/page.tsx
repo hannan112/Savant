@@ -252,6 +252,11 @@ export default function BlogsPage() {
       setLoading(true)
       setError("")
 
+      // Prevent saving with embedded base64 images which exceed Vercel body limits
+      if ((formData.content || '').match(/src\s*=\s*"data:image\//i)) {
+        throw new Error("This post contains pasted inline images. Please upload the image and use its URL instead of pasting directly.")
+      }
+
       const url = editingId ? `/api/blogs/${editingId}` : "/api/blogs"
       const method = editingId ? "PUT" : "POST"
 
@@ -264,8 +269,16 @@ export default function BlogsPage() {
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "Failed to save blog")
+        let message = "Failed to save blog"
+        try {
+          const asJson = await response.json()
+          message = asJson.error || asJson.message || message
+        } catch {
+          const asText = await response.text()
+          // Surface common platform errors like 413
+          message = asText || message
+        }
+        throw new Error(message)
       }
 
       await fetchBlogs()

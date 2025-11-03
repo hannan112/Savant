@@ -67,7 +67,7 @@ export function RichTextEditor({ content, onChange, placeholder = "Start writing
       }),
       Image.configure({
         inline: true,
-        allowBase64: true,
+        allowBase64: false, // prevent inlining pasted images as base64 (causes 413)
       }),
       Link.configure({
         openOnClick: false,
