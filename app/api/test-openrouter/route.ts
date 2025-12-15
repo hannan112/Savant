@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   try {
     const apiKey = process.env.OPENROUTER_API_KEY || process.env.GOOGLE_API_KEY;
-    
+
     if (!apiKey) {
       return NextResponse.json(
         {
@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
     const testModel = searchParams.get("model");
 
     // Try to generate text with a simple request
-    const model = testModel || process.env.OPENROUTER_MODEL || POPULAR_MODELS["llama-3.3-8b-free"] || POPULAR_MODELS["gemini-flash"] || POPULAR_MODELS["gpt-3.5-turbo"];
-    
+    const model = testModel || process.env.OPENROUTER_MODEL || POPULAR_MODELS["llama-3.3-70b-free"] || POPULAR_MODELS["gemini-flash"] || POPULAR_MODELS["gpt-3.5-turbo"];
+
     try {
       const result = await generateText("Say hello in one word", {
         model,
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
   // List available models
   try {
     const models = await listAvailableModels();
-    
+
     return NextResponse.json({
       status: "success",
       models: models.map((m: any) => ({
