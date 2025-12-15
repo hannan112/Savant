@@ -4,7 +4,7 @@ export const authConfig = {
         error: "/auth/error",
     },
     callbacks: {
-        authorized({ auth, request: { nextUrl } }) {
+        authorized({ auth, request: { nextUrl } }: { auth: any; request: { nextUrl: any } }) {
             const isLoggedIn = !!auth?.user;
             const onDashboard = nextUrl.pathname.startsWith('/dashboard');
             if (onDashboard) {
@@ -13,7 +13,7 @@ export const authConfig = {
             }
             return true;
         },
-        async jwt({ token, user, trigger, session }) {
+        async jwt({ token, user, trigger, session }: { token: any; user: any; trigger?: any; session?: any }) {
             if (user) {
                 token.role = (user as any).role;
                 token.plan = (user as any).plan;
@@ -21,7 +21,7 @@ export const authConfig = {
             }
             return token;
         },
-        async session({ session, token }) {
+        async session({ session, token }: { session: any; token: any }) {
             if (session.user) {
                 (session.user as any).role = token.role;
                 (session.user as any).plan = token.plan;
