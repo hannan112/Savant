@@ -32,17 +32,18 @@ export async function paraphraseText(
 
   try {
     // Use OpenRouter with a fast, free model (default to free Llama 3.3)
-    const model = process.env.OPENROUTER_MODEL || POPULAR_MODELS["llama-3.3-8b-free"] || POPULAR_MODELS["gemini-flash"] || POPULAR_MODELS["gpt-3.5-turbo"];
-    
+    // Use OpenRouter with the requested free model
+    const model = process.env.OPENROUTER_MODEL || POPULAR_MODELS["llama-3.3-70b-free"] || "meta-llama/llama-3.3-70b-instruct:free";
+
     const result = await generateText(prompt, {
       model,
       temperature: 0.7,
     });
-    
+
     if (!result || result.trim().length === 0) {
       throw new Error("Empty response from API. Please try again.");
     }
-    
+
     return result;
   } catch (error: any) {
     console.error("Paraphrase error:", error);

@@ -13,17 +13,7 @@ const registerSchema = z.object({
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-
-        const validation = registerSchema.safeParse(body);
-
-        if (!validation.success) {
-            return NextResponse.json(
-                { error: validation.error.issues[0].message },
-                { status: 400 }
-            );
-        }
-
-        const { name, email, password } = validation.data;
+        const { name, email, password } = registerSchema.parse(body);
 
         await connectDB();
 
@@ -56,8 +46,12 @@ export async function POST(req: Request) {
             { status: 201 }
         );
     } catch (error: any) {
-        // Zod errors handled above
-
+        if (error instanceof z.ZodError) {
+            return NextResponse.json(
+                { error: error.errors[0].message },
+                { status: 400 }
+            );
+        }
 
         console.error("Registration error:", error);
         return NextResponse.json(
