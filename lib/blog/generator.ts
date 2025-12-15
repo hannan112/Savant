@@ -71,8 +71,8 @@ Generate the blog post now:`;
   try {
     // Use OpenRouter with a good model for long-form content
     // Default to free Llama, but can be overridden with better paid models
-    const model = process.env.OPENROUTER_MODEL || POPULAR_MODELS["llama-3.3-8b-free"] || POPULAR_MODELS["gpt-4o"] || POPULAR_MODELS["claude-3.5-sonnet"] || POPULAR_MODELS["gemini-flash"];
-    
+    const model = process.env.OPENROUTER_MODEL || POPULAR_MODELS["llama-3.3-70b-free"] || POPULAR_MODELS["gpt-4o"] || POPULAR_MODELS["claude-3.5-sonnet"] || POPULAR_MODELS["gemini-flash"];
+
     const text = await generateText(prompt, {
       model,
       temperature: 0.8,
@@ -98,17 +98,17 @@ Generate the blog post now:`;
       .split(",")
       .map((k) => k.trim())
       .filter(Boolean);
-    
+
     // If content section is found, use it; otherwise use the full text
     let content = contentMatch?.[1]?.trim() || text;
-    
+
     // If content doesn't include HTML headings and they were requested, add them
     if (includeHeadings && !content.includes("<h2>")) {
       // Try to add structure
       const paragraphs = content.split("\n\n").filter((p) => p.trim());
       let structuredContent = "";
       let h2Index = 0;
-      
+
       paragraphs.forEach((para, index) => {
         if (index === 0) {
           structuredContent += `<p>${para}</p>\n`;
@@ -121,7 +121,7 @@ Generate the blog post now:`;
           structuredContent += `<p>${para}</p>\n`;
         }
       });
-      
+
       if (structuredContent.length > 0) {
         content = structuredContent;
       }
@@ -158,11 +158,11 @@ Generate the blog post now:`;
     };
   } catch (error: any) {
     console.error("Blog generation error:", error);
-    
+
     if (error.message) {
       throw error;
     }
-    
+
     throw new Error("Failed to generate blog content. Please try again.");
   }
 }
