@@ -12,6 +12,46 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const ipAddress = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
   const userAgent = request.headers.get("user-agent") || "unknown";
+
+  // Check daily limit (5 for free users)
+  // We check existing conversions from this IP for today
+  try {
+    const { auth } = require("@/lib/auth");
+    const session = await auth();
+    const isPremium = session?.user?.plan === "premium" || session?.user?.role === "admin";
+
+    if (!isPremium) {
+      const { startOfDay, endOfDay } = require("date-fns");
+      const Conversion = require("@/lib/db/models/Conversion").default;
+      const connectDB = require("@/lib/db/mongodb").default;
+
+      await connectDB();
+
+      const now = new Date();
+      // Simple range for today: midnight to midnight
+      // Note: This relies on server time. 
+      const todayStart = new Date(now.setHours(0, 0, 0, 0));
+      const todayEnd = new Date(now.setHours(23, 59, 59, 999));
+
+      const count = await Conversion.countDocuments({
+        ipAddress: ipAddress, // Fallback to IP for non-logged in or free users
+        createdAt: { $gte: todayStart, $lte: todayEnd },
+        status: "success"
+      });
+
+      if (count >= 5) {
+        return NextResponse.json(
+          { error: "Daily conversion limit reached (5 files/day). Upgrade to Premium for unlimited conversions." },
+          { status: 429 }
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Limit check error:", error);
+    // Continue if check fails, better safe than sorry? 
+    // Or block? Let's log and proceed to avoid breaking the app if DB flakey
+  }
+
   let file: File | null = null;
   let files: File[] = [];
   let from: string = "";
@@ -244,11 +284,11 @@ export async function POST(request: NextRequest) {
         (outputBuffer as Buffer).byteOffset + (outputBuffer as Buffer).byteLength
       ) as ArrayBuffer,
       {
-      headers: {
-        "Content-Type": mimeType,
-        "Content-Disposition": `attachment; filename="${fileName}"`,
-      },
-    }
+        headers: {
+          "Content-Type": mimeType,
+          "Content-Disposition": `attachment; filename="${fileName}"`,
+        },
+      }
     );
   } catch (error: any) {
     console.error("Conversion error:", error);

@@ -132,30 +132,53 @@ export default function DashboardPage() {
     },
   ]
 
+  const isAdmin = (session.user as any)?.role === "admin"
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Admin Dashboard</h1>
+          <h1 className="text-4xl font-bold tracking-tight mb-2">
+            {isAdmin ? "Admin Dashboard" : "My Dashboard"}
+          </h1>
           <p className="text-muted-foreground">
             Welcome back, {session.user?.name || session.user?.email}
+            {!isAdmin && (
+              <span className="ml-2 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
+                {(session.user as any)?.plan === "premium" ? "Premium" : "Free Plan"}
+              </span>
+            )}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={() => fetchStats(false)} 
+          {!isAdmin && (session.user as any)?.plan !== "premium" && (
+            <Button asChild className="bg-gradient-to-r from-orange-400 to-rose-400">
+              <Link href="/pricing">Upgrade to Premium</Link>
+            </Button>
+          )}
+          <Button
+            onClick={() => fetchStats(false)}
             variant="outline"
             disabled={refreshing || loading}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/blogs">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Manage Blogs
-            </Link>
-          </Button>
+          {isAdmin ? (
+            <Button asChild variant="outline">
+              <Link href="/blogs">
+                <BookOpen className="h-4 w-4 mr-2" />
+                Manage Blogs
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild variant="outline">
+              <Link href="/converters">
+                <FileText className="h-4 w-4 mr-2" />
+                Convert File
+              </Link>
+            </Button>
+          )}
           <Button onClick={() => signOut({ callbackUrl: "/" })} variant="outline">
             Sign Out
           </Button>

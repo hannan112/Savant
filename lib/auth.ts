@@ -3,8 +3,10 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import connectDB from "@/lib/db/mongodb";
 import User from "@/lib/db/models/User";
+import { authConfig } from "@/lib/auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -39,32 +41,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
+          plan: user.plan,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    ...authConfig.callbacks,
+    async jwt({ token, user, trigger, session }) {
+      // Run the original callback logic
+      // We manually copy logic because wrapping async callbacks is tricky or call super?
+      // Let's just reimplement the combo here since this runs in Node.
+
       if (user) {
         token.role = (user as any).role;
+        token.plan = (user as any).plan;
         token.id = user.id;
       }
+
+      // REFRESH LOGIC (Node only)
+      // If no user (subsequent calls), fetch fresh data from DB
+      if (!user && token.email) {
+        try {
+          await connectDB();
+          const freshUser = await User.findOne({ email: token.email });
+          if (freshUser) {
+            token.plan = freshUser.plan;
+            token.role = freshUser.role;
+          }
+        } catch (error) {
+          console.error("Error refreshing token data:", error);
+        }
+      }
+
       return token;
     },
-    async session({ session, token }) {
-      if (session.user) {
-        (session.user as any).role = token.role;
-        (session.user as any).id = token.id;
-      }
-      return session;
-    },
+    // We can inherit session callback safely as it has no DB calls
   },
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
-  },
-  session: {
-    strategy: "jwt",
-  },
-  secret: process.env.NEXTAUTH_SECRET,
 });

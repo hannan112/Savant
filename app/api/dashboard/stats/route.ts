@@ -6,18 +6,25 @@ import Conversion from "@/lib/db/models/Conversion";
 export async function GET() {
   try {
     const session = await auth();
+    const userRole = (session?.user as any)?.role;
+    const userId = (session?.user as any)?.id;
 
-    if (!session || (session.user as any)?.role !== "admin") {
+    if (!session || !userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
 
+    // Define query filter based on role
+    // Admins see all, Users see only theirs
+    const filter = userRole === "admin" ? {} : { userId: userId };
+
     // Get total conversions
-    const totalConversions = await Conversion.countDocuments();
+    const totalConversions = await Conversion.countDocuments(filter);
 
     // Get conversions by type
     const conversionsByType = await Conversion.aggregate([
+      { $match: filter },
       {
         $group: {
           _id: "$conversionType",
@@ -31,6 +38,7 @@ export async function GET() {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const recentConversions = await Conversion.countDocuments({
+      ...filter,
       createdAt: { $gte: thirtyDaysAgo },
     });
 
@@ -39,6 +47,7 @@ export async function GET() {
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
     const previousPeriodConversions = await Conversion.countDocuments({
+      ...filter,
       createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
     });
 
@@ -47,20 +56,22 @@ export async function GET() {
       previousPeriodConversions === 0
         ? 100
         : ((recentConversions - previousPeriodConversions) /
-            previousPeriodConversions) *
-          100;
+          previousPeriodConversions) *
+        100;
 
     // Get recent activity (last 10 conversions)
-    const recentActivity = await Conversion.find()
+    const recentActivity = await Conversion.find(filter)
       .sort({ createdAt: -1 })
       .limit(10)
       .select("conversionType fromFormat toFormat status createdAt fileName");
 
     // Get success rate
     const successfulConversions = await Conversion.countDocuments({
+      ...filter,
       status: "success",
     });
     const failedConversions = await Conversion.countDocuments({
+      ...filter,
       status: "failed",
     });
 

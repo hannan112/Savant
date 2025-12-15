@@ -2,6 +2,7 @@ import Link from "next/link"
 import { FileText, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { UserNav } from "@/components/layout/UserNav"
 import { CONVERTERS, SITE_CONFIG } from "@/lib/constants"
 
 export function Header() {
@@ -54,9 +55,7 @@ export function Header() {
 
         <div className="flex items-center space-x-2">
           <ThemeToggle />
-          <Button asChild variant="default">
-            <Link href="/tools/paraphraser">Get Started</Link>
-          </Button>
+          <UserNav />
         </div>
       </div>
     </header>
