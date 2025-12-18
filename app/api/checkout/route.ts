@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { auth } from "@/lib/auth";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "mock_key_for_build", {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     typescript: true,
 });
 
@@ -19,16 +19,7 @@ export async function POST(req: Request) {
         // Determine the base URL dynamically to support both localhost and production
         const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-        // DEMO MODE: If using a mock key, bypass Stripe and go straight to success
-        if (process.env.STRIPE_SECRET_KEY?.includes("mock")) {
-            console.log("DEMO MODE: Redirecting to Mock Checkout Page");
 
-            // Return URL to Mock Checkout Page
-            // Note: We do NOT update the plan here anymore. The mock page will call the confirmation API.
-            return NextResponse.json({
-                url: `${origin}/checkout/mock`
-            });
-        }
 
         const checkoutSession = await stripe.checkout.sessions.create({
             mode: "payment",
@@ -48,6 +39,9 @@ export async function POST(req: Request) {
             ],
             success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/payment/cancel`,
+            metadata: {
+                userId: (session?.user as any)?.id,
+            },
             // customer_email: session?.user?.email || undefined,
         });
 

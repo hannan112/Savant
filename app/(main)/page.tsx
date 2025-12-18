@@ -5,6 +5,8 @@ import { FileText, Zap, Lock, Download, CheckCircle, ArrowRight } from "lucide-r
 import { CONVERTERS, SITE_CONFIG } from "@/lib/constants"
 import { ConversionIcon } from "@/components/conversion-icon"
 import type { Metadata } from "next"
+import { auth } from "@/lib/auth"
+import { PricingSection } from "@/components/PricingSection"
 
 export const metadata: Metadata = {
   title: "Home - Your All-in-One Content & File Tool",
@@ -15,7 +17,10 @@ export const metadata: Metadata = {
   },
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth()
+  const showPricing = !session || (session.user as any)?.plan !== "premium"
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -97,9 +102,9 @@ export default function HomePage() {
               <Card key={converter.id} className="card-hover">
                 <CardHeader className="text-center">
                   <div className="mb-4 flex justify-center">
-                    <ConversionIcon 
-                      from={converter.supportedFormats} 
-                      to={converter.outputFormat.split(',')[0].trim()} 
+                    <ConversionIcon
+                      from={converter.supportedFormats}
+                      to={converter.outputFormat.split(',')[0].trim()}
                       size="lg"
                     />
                   </div>
@@ -210,6 +215,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Pricing Section */}
+      {showPricing && <PricingSection className="py-16" />}
 
       {/* FAQ Section */}
       <section className="py-16 bg-muted/50">

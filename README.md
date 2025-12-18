@@ -43,7 +43,6 @@ A professional, SEO-optimized, production-ready Next.js 14+ web application that
   - pdf-lib (PDF manipulation)
   - sharp (Image processing)
   - mammoth (DOCX processing)
-  - xlsx (Excel files)
 - **Form Handling:** React Hook Form + Zod validation
 - **SEO:** next-sitemap, next-seo
 

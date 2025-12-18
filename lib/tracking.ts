@@ -12,6 +12,7 @@ interface TrackConversionParams {
   duration?: number;
   ipAddress?: string;
   userAgent?: string;
+  userId?: string;
 }
 
 export async function trackConversion(params: TrackConversionParams) {
@@ -35,6 +36,7 @@ export async function trackConversion(params: TrackConversionParams) {
       duration: params.duration,
       ipAddress: params.ipAddress,
       userAgent: params.userAgent,
+      userId: params.userId,
     });
 
     console.log("[Tracking] Conversion tracked successfully:", {

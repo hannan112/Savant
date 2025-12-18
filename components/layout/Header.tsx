@@ -5,7 +5,12 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { UserNav } from "@/components/layout/UserNav"
 import { CONVERTERS, SITE_CONFIG } from "@/lib/constants"
 
-export function Header() {
+import { auth } from "@/lib/auth"
+
+export async function Header() {
+  const session = await auth()
+  const showPricing = !session || (session.user as any)?.plan !== "premium"
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 flex h-16 items-center justify-between max-w-7xl">
@@ -27,6 +32,14 @@ export function Header() {
           >
             Converters
           </Link>
+          {showPricing && (
+            <Link
+              href="/pricing"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              Pricing
+            </Link>
+          )}
           <Link
             href="/tools/paraphraser"
             className="text-sm font-medium transition-colors hover:text-primary"

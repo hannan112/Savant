@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { convertImageFormat, imageToPdfSingle, imagesToPdf } from "@/lib/converters/imageConverter";
 import { docxToPdf } from "@/lib/converters/docxConverter";
 import { pdfToDocx } from "@/lib/converters/pdfToDocx";
 import { createPdfFromText } from "@/lib/converters/pdfConverter";
 import { MAX_FILE_SIZE } from "@/lib/constants";
 import { trackConversion } from "@/lib/tracking";
+import Conversion from "@/lib/db/models/Conversion";
+import connectDB from "@/lib/db/mongodb";
+import { startOfDay, endOfDay } from "date-fns";
 
 export const runtime = "nodejs";
 
@@ -13,18 +17,19 @@ export async function POST(request: NextRequest) {
   const ipAddress = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
   const userAgent = request.headers.get("user-agent") || "unknown";
 
+  let session;
+  try {
+    session = await auth();
+  } catch (error) {
+    console.error("Auth check error:", error);
+  }
+
   // Check daily limit (5 for free users)
   // We check existing conversions from this IP for today
   try {
-    const { auth } = require("@/lib/auth");
-    const session = await auth();
-    const isPremium = session?.user?.plan === "premium" || session?.user?.role === "admin";
+    const isPremium = (session?.user as any)?.plan === "premium" || (session?.user as any)?.role === "admin";
 
     if (!isPremium) {
-      const { startOfDay, endOfDay } = require("date-fns");
-      const Conversion = require("@/lib/db/models/Conversion").default;
-      const connectDB = require("@/lib/db/mongodb").default;
-
       await connectDB();
 
       const now = new Date();
@@ -267,6 +272,7 @@ export async function POST(request: NextRequest) {
         duration,
         ipAddress,
         userAgent,
+        userId: (session?.user as any)?.id,
       });
       console.log("[Convert] Conversion tracked successfully");
     } catch (trackingError: any) {
@@ -308,6 +314,7 @@ export async function POST(request: NextRequest) {
           duration: Date.now() - startTime,
           ipAddress,
           userAgent,
+          userId: (session?.user as any)?.id,
         });
         console.log("[Convert] Failed conversion tracked successfully");
       } catch (trackingError: any) {

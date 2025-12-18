@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, Download, TrendingUp, Activity, Loader2, RefreshCw, BookOpen } from "lucide-react"
+import { FileText, Download, TrendingUp, Activity, Loader2, RefreshCw, BookOpen, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { signOut } from "next-auth/react"
@@ -164,6 +164,7 @@ export default function DashboardPage() {
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
             Refresh
           </Button>
+
           {isAdmin ? (
             <Button asChild variant="outline">
               <Link href="/blogs">
